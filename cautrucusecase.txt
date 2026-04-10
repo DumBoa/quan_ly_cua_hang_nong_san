@@ -1,0 +1,105 @@
+1. Quản lý cửa hàng – Quản lý sản phẩm
+
+1.1 Thêm sản phẩm
+1.2 Sửa thông tin sản phẩm
+1.3 Xóa sản phẩm
+1.4 Phân loại sản phẩm (rau, củ, quả…)
+1.5 Quản lý đơn vị tính (kg, bó, thùng)
+1.6 Thiết lập giá bán
+1.7 Quản lý nhiều mức giá (sỉ/lẻ)
+1.8 Gắn mã vạch / QR
+
+2. Quản lý cửa hàng – Quản lý giá & khuyến mãi
+
+2.1 Tạo chương trình giảm giá (%)
+2.2 Tạo combo sản phẩm
+2.3 Thiết lập giá theo thời gian
+2.4 Áp dụng giá cho khách VIP
+2.5 Tự động áp dụng khuyến mãi
+
+3. Quản lý cửa hàng – Quản lý nhân viên
+
+3.1 Thêm nhân viên
+3.2 Sửa / xóa nhân viên
+3.3 Phân quyền
+3.4 Theo dõi hiệu suất
+3.5 Quản lý lịch làm việc
+
+4. Quản lý cửa hàng – Quản lý nhà cung cấp
+
+4.1 Thêm nhà cung cấp
+4.2 Sửa / xóa nhà cung cấp
+4.3 Xem lịch sử nhập hàng
+4.4 So sánh giá nhập
+4.5 Đánh giá nhà cung cấp
+
+5. Quản lý cửa hàng – Báo cáo thống kê
+
+5.1 Doanh thu theo ngày / tháng / năm
+5.2 Lợi nhuận
+5.3 Hàng bán chạy
+5.4 Hàng tồn lâu
+5.5 Báo cáo tồn kho
+5.6 Báo cáo hàng sắp hết / hết hàng
+5.7 Báo cáo hàng cận hạn / hết hạn
+5.8 Báo cáo nhập – xuất – tồn
+5.9 Báo cáo theo nhân viên
+5.10 Báo cáo theo khung giờ
+5.11 Báo cáo theo khách hàng
+5.12 Báo cáo lợi nhuận theo sản phẩm
+5.13 Báo cáo công nợ nhà cung cấp
+
+6. Nhân viên bán hàng – Bán hàng
+
+6.1 Tạo hóa đơn
+6.2 Quét mã vạch
+6.3 Thêm sản phẩm vào hóa đơn
+6.4 Sửa / xóa sản phẩm trong hóa đơn
+6.5 Áp dụng khuyến mãi
+6.6 Tạm lưu hóa đơn
+
+7. Nhân viên bán hàng – Thanh toán
+
+7.1 Thanh toán tiền mặt
+7.2 Thanh toán chuyển khoản
+7.3 Tính tiền tự động
+7.4 In / xuất hóa đơn
+7.5 Hoàn tiền
+
+8. Nhân viên bán hàng – Quản lý khách hàng
+
+8.1 Thêm khách hàng
+8.2 Sửa thông tin
+8.3 Tích điểm
+8.4 Đổi điểm
+8.5 Phân loại khách
+8.6 Xem lịch sử mua
+
+9. Nhân viên kho – Nhập hàng
+
+9.1 Tạo phiếu nhập
+9.2 Chọn nhà cung cấp
+9.3 Nhập số lượng
+9.4 Ghi nhận giá nhập
+9.5 Ghi hạn sử dụng
+9.6 Kiểm tra chất lượng
+
+10. Nhân viên kho – Xuất kho
+
+10.1 Xuất theo đơn bán
+10.2 Xuất hủy (hỏng, dập)
+10.3 Xuất chuyển kho
+
+11. Nhân viên kho – Kiểm kê kho
+
+11.1 Kiểm kê định kỳ
+11.2 So sánh thực tế – hệ thống
+11.3 Điều chỉnh tồn kho
+11.4 Lưu lịch sử kiểm kê
+
+12. Nhân viên kho – Quản lý tồn & hạn
+
+12.1 Theo dõi tồn kho theo lô
+12.2 Cảnh báo hàng sắp hết
+12.3 Cảnh báo hàng cận hạn
+12.4 Xuất kho theo FIFO
