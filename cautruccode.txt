@@ -1,0 +1,115 @@
+nongsan/
+│
+├── manage.py
+├── requirements.txt
+│
+├── config/                         # cấu hình hệ thống
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+├── apps/                           # các module nghiệp vụ
+│   ├── sanpham/
+│   │   ├── migrations/
+│   │   ├── models.py              # Model
+│   │   ├── views.py               # View (Controller trong Django)
+│   │   ├── urls.py
+│   │   ├── forms.py
+│   │   ├── services.py            # Business logic
+│   │   ├── selectors.py           # Query logic
+│   │   ├── templates/             # Template (View UI)
+│   │   │   └── sanpham/
+│   │   └── static/
+│   │       └── sanpham/
+│
+│   ├── kho/
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── templates/
+│   │   │   └── kho/
+│   │   └── static/
+│   │       └── kho/
+│
+│   ├── banhang/
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── templates/
+│   │   │   └── banhang/
+│   │   └── static/
+│   │       └── banhang/
+│
+│   ├── khachhang/
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── templates/
+│   │   │   └── khachhang/
+│   │   └── static/
+│   │       └── khachhang/
+│
+│   ├── khuyenmai/
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── templates/
+│   │   │   └── khuyenmai/
+│   │   └── static/
+│   │       └── khuyenmai/
+│
+│   ├── nhanvien/
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── templates/
+│   │   │   └── nhanvien/
+│   │   └── static/
+│   │       └── nhanvien/
+│
+│   └── baocao/
+│       ├── migrations/
+│       ├── models.py
+│       ├── views.py
+│       ├── urls.py
+│       ├── services.py
+│       ├── selectors.py
+│       ├── templates/
+│       │   └── baocao/
+│       └── static/
+│           └── baocao/
+│
+├── templates/                     # template dùng chung
+│   ├── base.html
+│   ├── layouts/
+│   └── components/
+│
+├── static/                        # tài nguyên dùng chung
+│   ├── css/
+│   ├── js/
+│   ├── images/
+│   └── libs/                      # bootstrap, chart...
+│
+├── media/                         # upload (ảnh, QR...)
+│
+└── utils/                         # dùng chung
+    ├── constants.py
+    ├── helpers.py
+    └── validators.py
