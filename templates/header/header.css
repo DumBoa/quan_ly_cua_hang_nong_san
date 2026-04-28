@@ -1,0 +1,75 @@
+/* Header/Topbar styles */
+.topbar {
+    height: 60px;
+    background: var(--surface);
+    border-bottom: 1px solid #e8ede8;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.topbar .toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--secondary);
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.topbar .toggle-btn:hover {
+    background: #f0f5f0;
+}
+
+.topbar .page-title {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.topbar .spacer {
+    flex: 1;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.topbar-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: #f3f6f4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary);
+    transition: background 0.15s;
+}
+
+.topbar-icon:hover {
+    background: #e6f4eb;
+    color: var(--primary);
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+}

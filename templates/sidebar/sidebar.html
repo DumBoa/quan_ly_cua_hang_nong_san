@@ -1,0 +1,258 @@
+{% load static %}
+
+<link rel="stylesheet" href="../sidebar/sidebar.css">
+<script src="../sidebar/sidebar.js"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu chính">
+    <div class="logo">
+        <div class="logo-icon">
+            <i data-lucide="leaf" style="width:18px;height:18px"></i>
+        </div>
+        <span class="logo-text" id="storeName">Nông Sản Xanh</span>
+    </div>
+
+    <nav class="nav-items">
+        <!-- Dashboard -->
+        <div class="nav-group">
+            <div class="nav-item" data-section="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="nav-item-text">Tổng quan</span>
+                <div class="tooltip">
+                    <span class="tooltiptext">Dashboard</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quản lý sản phẩm -->
+        <div class="nav-group">
+            <div class="nav-group-title">Sản phẩm</div>
+
+            <div class="nav-item" data-has-submenu="products">
+                <i data-lucide="sprout"></i>                    <!-- Thay vì package -->
+                <span class="nav-item-text">Quản lý sản phẩm</span>
+                <i data-lucide="chevron-down" class="nav-item-arrow"></i>
+                <div class="tooltip">
+                    <span class="tooltiptext">Sản phẩm</span>
+                </div>
+            </div>
+            <div class="nav-submenu" id="products-submenu">
+                <div class="nav-subitem" data-section="products-list">
+                    <i data-lucide="list" style="width:14px;height:14px"></i>
+                    Danh sách sản phẩm
+                </div>
+                <div class="nav-subitem" data-section="categories">
+                    <i data-lucide="folder-tree" style="width:14px;height:14px"></i>
+                    Danh mục
+                </div>
+                <div class="nav-subitem" data-section="units">
+                    <i data-lucide="ruler" style="width:14px;height:14px"></i>
+                    Đơn vị tính
+                </div>
+            </div>
+
+            <div class="nav-item" data-has-submenu="pricing">
+                <i data-lucide="tags"></i>                       <!-- Thay vì tag -->
+                <span class="nav-item-text">Giá &amp; Khuyến mãi</span>
+                <i data-lucide="chevron-down" class="nav-item-arrow"></i>
+                <div class="tooltip">
+                    <span class="tooltiptext">Giá &amp; KM</span>
+                </div>
+            </div>
+            <div class="nav-submenu" id="pricing-submenu">
+                <div class="nav-subitem" data-section="price-mgmt">
+                    <i data-lucide="dollar-sign" style="width:14px;height:14px"></i>
+                    Giá sản phẩm
+                </div>
+                <div class="nav-subitem" data-section="promotions">
+                    <i data-lucide="gift" style="width:14px;height:14px"></i>
+                    Khuyến mãi
+                </div>
+                <div class="nav-subitem" data-section="combos">
+                    <i data-lucide="layers" style="width:14px;height:14px"></i>
+                    Combo
+                </div>
+            </div>
+        </div>
+
+        <!-- Bán hàng -->
+        <div class="nav-group">
+            <div class="nav-group-title">Bán Hàng</div>
+            <div class="nav-item" data-section="pos">
+                <i data-lucide="shopping-cart"></i>
+                <span class="nav-item-text">POS - Bán Hàng</span>
+                <div class="tooltip">
+                    <span class="tooltiptext">Quầy bán</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quản lý kho -->
+        <div class="nav-group">
+            <div class="nav-group-title">Kho</div>
+
+            <div class="nav-item" data-has-submenu="inventory">
+                <i data-lucide="warehouse"></i>                  <!-- Rất hợp với kho -->
+                <span class="nav-item-text">Quản lý kho</span>
+                <i data-lucide="chevron-down" class="nav-item-arrow"></i>
+                <div class="tooltip">
+                    <span class="tooltiptext">Kho</span>
+                </div>
+            </div>
+            <div class="nav-submenu" id="inventory-submenu">
+                <div class="nav-subitem" data-section="inventory-stock">
+                    <i data-lucide="package-check" style="width:14px;height:14px"></i>
+                    Tồn kho
+                </div>
+                <div class="nav-subitem" data-section="inventory-import">
+                    <i data-lucide="truck" style="width:14px;height:14px"></i>   <!-- Thay vì import -->
+                    Nhập kho
+                </div>
+                <div class="nav-subitem" data-section="inventory-export">
+                    <i data-lucide="arrow-up-right" style="width:14px;height:14px"></i>  <!-- Thay vì export -->
+                    Xuất kho
+                </div>
+                <div class="nav-subitem" data-section="inventory-check">
+                    <i data-lucide="clipboard-list" style="width:14px;height:14px"></i>
+                    Kiểm kê
+                </div>
+                <div class="nav-subitem" data-section="inventory-batch">
+                    <i data-lucide="boxes" style="width:14px;height:14px"></i>
+                    Theo dõi theo lô
+                </div>
+            </div>
+        </div>
+
+        <!-- Đối tác -->
+        <div class="nav-group">
+            <div class="nav-group-title">Đối Tác</div>
+
+            <div class="nav-item" data-has-submenu="partners">
+                <i data-lucide="handshake"></i>
+                <span class="nav-item-text">Đối tác</span>
+                <i data-lucide="chevron-down" class="nav-item-arrow"></i>
+                <div class="tooltip">
+                    <span class="tooltiptext">Đối tác</span>
+                </div>
+            </div>
+            <div class="nav-submenu" id="partners-submenu">
+                <div class="nav-subitem" data-section="customers">
+                    <i data-lucide="users" style="width:14px;height:14px"></i>
+                    Khách hàng
+                </div>
+                <div class="nav-subitem" data-section="suppliers">
+                    <i data-lucide="truck" style="width:14px;height:14px"></i>
+                    Nhà cung cấp
+                </div>
+            </div>
+        </div>
+
+        <!-- Nhân viên -->
+        <div class="nav-group">
+            <div class="nav-group-title">Nhân Viên</div>
+
+            <div class="nav-item" data-has-submenu="staff">
+                <i data-lucide="users"></i>
+                <span class="nav-item-text">Nhân viên</span>
+                <i data-lucide="chevron-down" class="nav-item-arrow"></i>
+                <div class="tooltip">
+                    <span class="tooltiptext">Nhân viên</span>
+                </div>
+            </div>
+            <div class="nav-submenu" id="staff-submenu">
+                <div class="nav-subitem" data-section="staff-list">
+                    <i data-lucide="user-round" style="width:14px;height:14px"></i>
+                    Danh sách nhân viên
+                </div>
+                <div class="nav-subitem" data-section="permissions">
+                    <i data-lucide="shield-check" style="width:14px;height:14px"></i>   <!-- Thêm "check" cho rõ ràng hơn -->
+                    Phân quyền
+                </div>
+                <div class="nav-subitem" data-section="schedule">
+                    <i data-lucide="calendar" style="width:14px;height:14px"></i>
+                    Lịch làm việc
+                </div>
+            </div>
+        </div>
+
+        <!-- Báo cáo -->
+        <div class="nav-group">
+            <div class="nav-group-title">Báo Cáo</div>
+
+            <div class="nav-item" data-has-submenu="reports">
+                <i data-lucide="bar-chart-3"></i>
+                <span class="nav-item-text">Báo cáo</span>
+                <i data-lucide="chevron-down" class="nav-item-arrow"></i>
+                <div class="tooltip">
+                    <span class="tooltiptext">Báo cáo</span>
+                </div>
+            </div>
+            <div class="nav-submenu" id="reports-submenu">
+                <div class="nav-subitem" data-section="reports-overview">
+                    <i data-lucide="trending-up" style="width:14px;height:14px"></i>
+                    Tổng quan
+                </div>
+                <div class="nav-subitem" data-section="reports-revenue">
+                    <i data-lucide="chart-line" style="width:14px;height:14px"></i>
+                    Doanh thu
+                </div>
+                <div class="nav-subitem" data-section="reports-inventory">
+                    <i data-lucide="pie-chart" style="width:14px;height:14px"></i>
+                    Tồn kho
+                </div>
+                <div class="nav-subitem" data-section="reports-products">
+                    <i data-lucide="sprout" style="width:14px;height:14px"></i>   <!-- Đồng bộ với sản phẩm -->
+                    Sản phẩm
+                </div>
+                <div class="nav-subitem" data-section="reports-customers">
+                    <i data-lucide="users" style="width:14px;height:14px"></i>
+                    Khách hàng
+                </div>
+                <div class="nav-subitem" data-section="reports-staff">
+                    <i data-lucide="user-check" style="width:14px;height:14px"></i>
+                    Nhân viên
+                </div>
+            </div>
+        </div>
+
+        <!-- Hệ thống -->
+        <div class="nav-group">
+            <div class="nav-group-title">Hệ Thống</div>
+
+            <div class="nav-item" data-has-submenu="system">
+                <i data-lucide="settings"></i>
+                <span class="nav-item-text">Cài đặt</span>
+                <i data-lucide="chevron-down" class="nav-item-arrow"></i>
+                <div class="tooltip">
+                    <span class="tooltiptext">Cài đặt</span>
+                </div>
+            </div>
+            <div class="nav-submenu" id="system-submenu">
+                <div class="nav-subitem" data-section="settings-general">
+                    <i data-lucide="sliders-horizontal" style="width:14px;height:14px"></i>
+                    Cài đặt chung
+                </div>
+                <div class="nav-subitem" data-section="settings-backup">
+                    <i data-lucide="database" style="width:14px;height:14px"></i>
+                    Sao lưu
+                </div>
+                <div class="nav-subitem" data-section="logs">
+                    <i data-lucide="file-text" style="width:14px;height:14px"></i>
+                    Nhật ký hoạt động
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button class="sidebar-footer-btn" id="logoutBtn">
+            <i data-lucide="log-out" style="width:14px;height:14px"></i>
+            <span class="nav-item-text">Đăng xuất</span>
+        </button>
+    </div>
+</aside>
