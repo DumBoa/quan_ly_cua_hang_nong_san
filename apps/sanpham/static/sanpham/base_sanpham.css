@@ -1,0 +1,14 @@
+html,body{height:100%;margin:0}
+*{box-sizing:border-box}
+.fade-in{animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.sidebar-item{transition:background .15s,color .15s}
+.sidebar-item:hover{background:rgba(34,168,90,.08)}
+.sidebar-item.active{background:rgba(34,168,90,.12);color:#1b8a49;font-weight:600}
+.table-row{transition:background .15s}
+.table-row:hover{background:#f0faf4}
+.card-product{transition:box-shadow .2s,transform .15s}
+.card-product:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px)}
+.confirm-overlay{background:rgba(15,30,20,.45);backdrop-filter:blur(3px)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
