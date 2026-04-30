@@ -1,4 +1,4 @@
-nongsan/
+QuanLy_cua_hang_nong_san/
 │
 ├── manage.py
 ├── requirements.txt
@@ -35,7 +35,29 @@ nongsan/
 │   │   │   └── kho/
 │   │   └── static/
 │   │       └── kho/
-│
+│   ├── nhacungcap/                # NEW
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── templates/
+│   │   │   └── nhacungcap/
+│   │   └── static/
+│   │       └── nhacungcap/
+│   │
+│   ├── thanhtoan/
+│   │   ├── migrations/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── templates/
+│   │   │   └── thanhtoan/
+│   │   └── static/
+│   │       └── thanhtoan/
 │   ├── banhang/
 │   │   ├── migrations/
 │   │   ├── models.py
@@ -113,3 +135,7 @@ nongsan/
     ├── constants.py
     ├── helpers.py
     └── validators.py
+
+
+=====================================
+
