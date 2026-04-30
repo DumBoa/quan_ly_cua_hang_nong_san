@@ -137,5 +137,5 @@ QuanLy_cua_hang_nong_san/
     └── validators.py
 
 
-=====================================
+
 
