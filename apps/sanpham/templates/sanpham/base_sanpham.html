@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="fade-in">
+    <!-- Toolbar -->
+    <div class="bg-white rounded-xl shadow-sm border border-soil-100 p-4 mb-4">
+        <div class="flex flex-col sm:flex-row gap-3">
+            <!-- Search -->
+            <div class="relative flex-1">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soil-600"></i>
+                <input id="searchInput" type="text" placeholder="Tìm tên sản phẩm, mã vạch..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400 transition" oninput="filterProducts()">
+            </div>
+            <!-- Filters -->
+            <div class="flex gap-2 flex-wrap">
+                <select id="catFilter" onchange="filterProducts()" class="px-3 py-2.5 rounded-xl border border-soil-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-forest-400/30">
+                    <option value="">Tất cả danh mục</option>
+                    <option>Rau</option>
+                    <option>Củ</option>
+                    <option>Quả</option>
+                    <option>Đặc sản</option>
+                </select>
+                <select id="statusFilter" onchange="filterProducts()" class="px-3 py-2.5 rounded-xl border border-soil-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-forest-400/30">
+                    <option value="">Trạng thái</option>
+                    <option>Đang bán</option>
+                    <option>Hết hàng</option>
+                    <option>Ngừng bán</option>
+                </select>
+                <button id="addBtn" onclick="showForm()" class="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-forest-500 hover:bg-forest-600 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span id="addBtnText">Thêm sản phẩm</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="hidden md:block bg-white rounded-xl shadow-sm border border-soil-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-soil-50 text-soil-600 text-left text-xs uppercase tracking-wider">
+                        <th class="px-4 py-3 font-semibold">Ảnh</th>
+                        <th class="px-4 py-3 font-semibold">Tên sản phẩm</th>
+                        <th class="px-4 py-3 font-semibold">Danh mục</th>
+                        <th class="px-4 py-3 font-semibold">Đơn vị</th>
+                        <th class="px-4 py-3 font-semibold text-right">Giá lẻ</th>
+                        <th class="px-4 py-3 font-semibold text-right">Tồn kho</th>
+                        <th class="px-4 py-3 font-semibold">Trạng thái</th>
+                        <th class="px-4 py-3 font-semibold text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div id="tablePagination" class="px-4 py-3 border-t border-soil-100 flex items-center justify-between text-xs text-soil-600"></div>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div id="mobileCards" class="md:hidden space-y-3"></div>
+    <div id="mobilePagination" class="md:hidden mt-4 flex items-center justify-center gap-2 text-sm"></div>
+</div>
+
+<!-- Form View -->
+<div id="formView" class="hidden fade-in">
+    <div class="bg-white rounded-xl shadow-sm border border-soil-100 p-5 lg:p-6 max-w-2xl">
+        <div class="flex items-center gap-3 mb-5">
+            <button onclick="showList()" class="p-2 rounded-lg hover:bg-soil-100 transition">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <h2 id="formTitle" class="text-lg font-bold">Thêm sản phẩm</h2>
+        </div>
+        <form id="productForm" onsubmit="saveProduct(event)" class="space-y-4">
+            <input type="hidden" id="editId" value="">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-soil-600 mb-1" for="fName">Tên sản phẩm *</label>
+                    <input id="fName" required class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-soil-600 mb-1" for="fBarcode">Mã vạch</label>
+                    <input id="fBarcode" class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-soil-600 mb-1" for="fCat">Danh mục *</label>
+                    <select id="fCat" required class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-forest-400/30">
+                        <option value="">Chọn...</option>
+                        <option>Rau</option>
+                        <option>Củ</option>
+                        <option>Quả</option>
+                        <option>Đặc sản</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-soil-600 mb-1" for="fUnit">Đơn vị *</label>
+                    <select id="fUnit" required class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-forest-400/30">
+                        <option value="">Chọn...</option>
+                        <option>kg</option>
+                        <option>bó</option>
+                        <option>trái</option>
+                        <option>hộp</option>
+                        <option>gói</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-soil-600 mb-1" for="fPrice">Giá lẻ (VNĐ) *</label>
+                    <input id="fPrice" type="number" min="0" required class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-soil-600 mb-1" for="fStock">Tồn kho *</label>
+                    <input id="fStock" type="number" min="0" required class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-soil-600 mb-1" for="fStatus">Trạng thái</label>
+                <select id="fStatus" class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-forest-400/30">
+                    <option>Đang bán</option>
+                    <option>Hết hàng</option>
+                    <option>Ngừng bán</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="px-5 py-2.5 bg-forest-500 hover:bg-forest-600 text-white font-semibold text-sm rounded-xl transition shadow-sm">Lưu sản phẩm</button>
+                <button type="button" onclick="showList()" class="px-5 py-2.5 bg-soil-100 hover:bg-soil-200 text-soil-800 font-semibold text-sm rounded-xl transition">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- FAB mobile -->
+<button onclick="showForm()" class="sm:hidden fixed bottom-5 right-5 z-30 w-14 h-14 bg-forest-500 hover:bg-forest-600 text-white rounded-2xl shadow-lg flex items-center justify-center transition active:scale-95">
+    <i data-lucide="plus" class="w-6 h-6"></i>
+</button>
+
+<!-- Delete confirm -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center confirm-overlay">
+    <div class="bg-white rounded-2xl shadow-xl p-6 mx-4 max-w-sm w-full fade-in">
+        <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="trash-2" class="w-6 h-6 text-red-500"></i>
+        </div>
+        <h3 class="text-center font-bold mb-1">Xác nhận xóa?</h3>
+        <p id="confirmText" class="text-center text-sm text-soil-600 mb-5">Sản phẩm sẽ bị xóa vĩnh viễn.</p>
+        <div class="flex gap-3">
+            <button onclick="closeConfirm()" class="flex-1 py-2.5 bg-soil-100 hover:bg-soil-200 rounded-xl font-semibold text-sm transition">Hủy</button>
+            <button onclick="confirmDelete()" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm transition">Xóa</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-4 right-4 z-50 hidden">
+    <div class="bg-forest-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 fade-in">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
+        <span id="toastMsg"></span>
+    </div>
+</div>
+
+<style>
+    html,body{height:100%;margin:0}
+    *{box-sizing:border-box}
+    .fade-in{animation:fadeIn .2s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .sidebar-item{transition:background .15s,color .15s}
+    .sidebar-item:hover{background:rgba(34,168,90,.08)}
+    .sidebar-item.active{background:rgba(34,168,90,.12);color:#1b8a49;font-weight:600}
+    .table-row{transition:background .15s}
+    .table-row:hover{background:#f0faf4}
+    .card-product{transition:box-shadow .2s,transform .15s}
+    .card-product:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px)}
+    .confirm-overlay{background:rgba(15,30,20,.45);backdrop-filter:blur(3px)}
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+</style>
+
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: { body: ['Be Vietnam Pro', 'sans-serif'] },
+                colors: {
+                    forest: { 50:'#f0faf4', 100:'#d1f2e0', 200:'#a3e4c1', 400:'#34c472', 500:'#22a85a', 600:'#1b8a49', 700:'#156e3a', 800:'#0f5a2f', 900:'#0a3d20' },
+                    soil: { 50:'#faf8f5', 100:'#f0ebe3', 200:'#e0d5c7', 600:'#8a7560', 800:'#4a3f33' },
+                }
+            }
+        }
+    }
+</script>
+
+<script>
+    // Sample data
+    const emojis = {emoji:'🥬🥕🍅🥒🌽🍆🫑🥦🍊🥭🍌🧅🫚🍋🥜'.match(/./gu)};
+    let products = [
+        {id:1, name:'Rau muống', barcode:'8901234001', cat:'Rau', unit:'bó', price:8000, stock:120, status:'Đang bán'},
+        {id:2, name:'Cà rốt Đà Lạt', barcode:'8901234002', cat:'Củ', unit:'kg', price:25000, stock:45, status:'Đang bán'},
+        {id:3, name:'Xoài cát Hòa Lộc', barcode:'8901234003', cat:'Quả', unit:'kg', price:65000, stock:30, status:'Đang bán'},
+        {id:4, name:'Cà chua beef', barcode:'8901234004', cat:'Quả', unit:'kg', price:35000, stock:0, status:'Hết hàng'},
+        {id:5, name:'Bắp ngọt Mỹ', barcode:'8901234005', cat:'Củ', unit:'trái', price:12000, stock:80, status:'Đang bán'},
+        {id:6, name:'Nấm đông cô', barcode:'8901234006', cat:'Đặc sản', unit:'gói', price:45000, stock:25, status:'Đang bán'},
+        {id:7, name:'Bưởi da xanh', barcode:'8901234007', cat:'Quả', unit:'trái', price:55000, stock:15, status:'Đang bán'},
+        {id:8, name:'Khoai lang Nhật', barcode:'8901234008', cat:'Củ', unit:'kg', price:30000, stock:0, status:'Ngừng bán'},
+        {id:9, name:'Rau cải thìa', barcode:'8901234009', cat:'Rau', unit:'bó', price:10000, stock:90, status:'Đang bán'},
+        {id:10, name:'Mật ong rừng', barcode:'8901234010', cat:'Đặc sản', unit:'hộp', price:280000, stock:8, status:'Đang bán'},
+        {id:11, name:'Ớt hiểm', barcode:'8901234011', cat:'Rau', unit:'kg', price:40000, stock:35, status:'Đang bán'},
+        {id:12, name:'Chuối già Nam Mỹ', barcode:'8901234012', cat:'Quả', unit:'kg', price:18000, stock:60, status:'Đang bán'},
+    ];
+
+    let nextId = 13;
+    let currentPage = 1;
+    const perPage = 8;
+    let deleteTarget = null;
+
+    function getEmoji(name) {
+        let h = 0; for(let i=0;i<name.length;i++) h=((h<<5)-h)+name.charCodeAt(i);
+        return emojis.emoji[Math.abs(h)%emojis.emoji.length];
+    }
+
+    function formatVND(n) { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
+
+    function statusBadge(s) {
+        const m = {'Đang bán':'bg-emerald-50 text-emerald-700 border-emerald-200','Hết hàng':'bg-amber-50 text-amber-700 border-amber-200','Ngừng bán':'bg-red-50 text-red-600 border-red-200'};
+        return `<span class="inline-flex px-2 py-0.5 rounded-lg text-xs font-medium border ${m[s]||m['Đang bán']}">${s}</span>`;
+    }
+
+    function getFiltered() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const cat = document.getElementById('catFilter').value;
+        const st = document.getElementById('statusFilter').value;
+        return products.filter(p => {
+            if(q && !p.name.toLowerCase().includes(q) && !p.barcode.includes(q)) return false;
+            if(cat && p.cat !== cat) return false;
+            if(st && p.status !== st) return false;
+            return true;
+        });
+    }
+
+    function filterProducts() { currentPage=1; render(); }
+
+    function render() {
+        const filtered = getFiltered();
+        const total = filtered.length;
+        const pages = Math.max(1, Math.ceil(total/perPage));
+        if(currentPage > pages) currentPage = pages;
+        const start = (currentPage-1)*perPage;
+        const slice = filtered.slice(start, start+perPage);
+
+        // Desktop table
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = slice.map(p => `
+            <tr class="table-row border-t border-soil-100">
+                <td class="px-4 py-3"><div class="w-10 h-10 rounded-xl bg-forest-50 flex items-center justify-center text-xl">${getEmoji(p.name)}</div></td>
+                <td class="px-4 py-3"><div class="font-semibold">${p.name}</div><div class="text-xs text-soil-600">${p.barcode}</div></td>
+                <td class="px-4 py-3 text-soil-600">${p.cat}</td>
+                <td class="px-4 py-3 text-soil-600">${p.unit}</td>
+                <td class="px-4 py-3 text-right font-medium">${formatVND(p.price)}</td>
+                <td class="px-4 py-3 text-right"><span class="${p.stock===0?'text-red-500 font-semibold':'text-soil-800'}">${p.stock}</span></td>
+                <td class="px-4 py-3">${statusBadge(p.status)}</td>
+                <td class="px-4 py-3 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                        <button onclick="editProduct(${p.id})" class="p-1.5 rounded-lg hover:bg-forest-50 text-forest-600 transition" title="Sửa"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                        <button onclick="askDelete(${p.id})" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition" title="Xóa"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+        // Desktop pagination
+        document.getElementById('tablePagination').innerHTML = `
+            <span>Hiển thị ${total?start+1:0}–${Math.min(start+perPage,total)} / ${total} sản phẩm</span>
+            <div class="flex gap-1">${paginationBtns(pages)}</div>
+        `;
+
+        // Mobile cards
+        document.getElementById('mobileCards').innerHTML = slice.map(p => `
+            <div class="card-product bg-white rounded-xl shadow-sm border border-soil-100 p-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-forest-50 flex items-center justify-center text-2xl shrink-0">${getEmoji(p.name)}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2">
+                            <div><div class="font-semibold text-sm">${p.name}</div><div class="text-xs text-soil-600">${p.cat} · ${p.unit}</div></div>
+                            ${statusBadge(p.status)}
+                        </div>
+                        <div class="flex items-center justify-between mt-2.5">
+                            <div class="font-bold text-forest-700">${formatVND(p.price)}</div>
+                            <div class="text-xs text-soil-600">Kho: <span class="${p.stock===0?'text-red-500 font-semibold':''}">${p.stock}</span></div>
+                        </div>
+                        <div class="flex gap-2 mt-3 border-t border-soil-100 pt-3">
+                            <button onclick="editProduct(${p.id})" class="flex items-center gap-1 text-xs font-medium text-forest-600 hover:text-forest-700"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Sửa</button>
+                            <button onclick="askDelete(${p.id})" class="flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('mobilePagination').innerHTML = paginationBtns(pages);
+        lucide.createIcons();
+    }
+
+    function paginationBtns(pages) {
+        let h = '';
+        for(let i=1;i<=pages;i++) {
+            h += `<button onclick="goPage(${i})" class="w-8 h-8 rounded-lg text-xs font-medium transition ${i===currentPage?'bg-forest-500 text-white':'hover:bg-soil-100 text-soil-600'}">${i}</button>`;
+        }
+        return h;
+    }
+
+    function goPage(p) { currentPage=p; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+    function showForm(id) {
+        document.getElementById('listView')?.classList.add('hidden');
+        document.getElementById('formView').classList.remove('hidden');
+        document.getElementById('formView').classList.add('fade-in');
+        if(!id) {
+            document.getElementById('formTitle').textContent = 'Thêm sản phẩm';
+            document.getElementById('productForm').reset();
+            document.getElementById('editId').value = '';
+        }
+    }
+
+    function showList() {
+        document.getElementById('formView').classList.add('hidden');
+        document.getElementById('listView')?.classList.remove('hidden');
+        render();
+    }
+
+    function editProduct(id) {
+        const p = products.find(x=>x.id===id);
+        if(!p) return;
+        showForm(id);
+        document.getElementById('formTitle').textContent = 'Sửa sản phẩm';
+        document.getElementById('editId').value = id;
+        document.getElementById('fName').value = p.name;
+        document.getElementById('fBarcode').value = p.barcode;
+        document.getElementById('fCat').value = p.cat;
+        document.getElementById('fUnit').value = p.unit;
+        document.getElementById('fPrice').value = p.price;
+        document.getElementById('fStock').value = p.stock;
+        document.getElementById('fStatus').value = p.status;
+    }
+
+    function saveProduct(e) {
+        e.preventDefault();
+        const id = document.getElementById('editId').value;
+        const data = {
+            name: document.getElementById('fName').value,
+            barcode: document.getElementById('fBarcode').value || ('890' + Date.now()%10000000),
+            cat: document.getElementById('fCat').value,
+            unit: document.getElementById('fUnit').value,
+            price: parseInt(document.getElementById('fPrice').value),
+            stock: parseInt(document.getElementById('fStock').value),
+            status: document.getElementById('fStatus').value,
+        };
+        if(id) {
+            const p = products.find(x=>x.id===+id);
+            if(p) Object.assign(p, data);
+            showToast('Đã cập nhật sản phẩm');
+        } else {
+            products.unshift({id:nextId++, ...data});
+            showToast('Đã thêm sản phẩm mới');
+        }
+        showList();
+    }
+
+    function askDelete(id) {
+        deleteTarget = id;
+        const p = products.find(x=>x.id===id);
+        document.getElementById('confirmText').textContent = `"${p?.name}" sẽ bị xóa vĩnh viễn.`;
+        document.getElementById('confirmModal').classList.remove('hidden');
+        document.getElementById('confirmModal').classList.add('flex');
+    }
+
+    function closeConfirm() {
+        document.getElementById('confirmModal').classList.add('hidden');
+        document.getElementById('confirmModal').classList.remove('flex');
+        deleteTarget = null;
+    }
+
+    function confirmDelete() {
+        if(deleteTarget!==null) {
+            products = products.filter(p=>p.id!==deleteTarget);
+            showToast('Đã xóa sản phẩm');
+        }
+        closeConfirm();
+        render();
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toastMsg').textContent = msg;
+        t.classList.remove('hidden');
+        lucide.createIcons();
+        setTimeout(()=>t.classList.add('hidden'), 2200);
+    }
+
+    // Wrap everything in a div with id listView
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wrap the initial content in listView div
+        const mainDiv = document.querySelector('.fade-in');
+        if(mainDiv && !mainDiv.id) {
+            mainDiv.id = 'listView';
+        }
+        render();
+        lucide.createIcons();
+    });
+</script>
+
+{% endblock %}

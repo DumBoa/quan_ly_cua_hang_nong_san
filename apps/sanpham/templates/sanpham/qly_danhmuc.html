@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<html lang="vi" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý sản phẩm</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { body: ['Be Vietnam Pro', 'sans-serif'] },
+      colors: {
+        forest: { 50:'#f0faf4', 100:'#d1f2e0', 200:'#a3e4c1', 400:'#34c472', 500:'#22a85a', 600:'#1b8a49', 700:'#156e3a', 800:'#0f5a2f', 900:'#0a3d20' },
+        soil: { 50:'#faf8f5', 100:'#f0ebe3', 200:'#e0d5c7', 600:'#8a7560', 800:'#4a3f33' },
+      }
+    }
+  }
+}
+</script>
+  <style>
+html,body{height:100%;margin:0}
+*{box-sizing:border-box}
+.fade-in{animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.sidebar-item{transition:background .15s,color .15s}
+.sidebar-item:hover{background:rgba(34,168,90,.08)}
+.sidebar-item.active{background:rgba(34,168,90,.12);color:#1b8a49;font-weight:600}
+.table-row{transition:background .15s}
+.table-row:hover{background:#f0faf4}
+.card-product{transition:box-shadow .2s,transform .15s}
+.card-product:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px)}
+.confirm-overlay{background:rgba(15,30,20,.45);backdrop-filter:blur(3px)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-soil-50 font-body text-soil-800 flex overflow-hidden">
+  <!-- Sidebar -->
+  <!-- Main -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+   <!-- Header -->
+   <!-- Content -->
+   <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+    <!-- List View (default) -->
+    <div id="listView" class="fade-in">
+     <!-- Toolbar -->
+     <div class="bg-white rounded-xl shadow-sm border border-soil-100 p-4 mb-4">
+      <div class="flex flex-col sm:flex-row gap-3">
+       <!-- Search -->
+       <div class="relative flex-1">
+        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soil-600"></i> <input id="searchInput" type="text" placeholder="Tìm tên danh mục..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400 transition" oninput="filterCategories()">
+       </div><!-- Action --> <button id="addBtn" onclick="showForm()" class="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-forest-500 hover:bg-forest-600 text-white text-sm font-semibold rounded-xl transition shadow-sm"> <i data-lucide="plus" class="w-4 h-4"></i><span id="addBtnText">Thêm danh mục</span> </button>
+      </div>
+     </div><!-- Desktop Table -->
+     <div class="hidden md:block bg-white rounded-xl shadow-sm border border-soil-100 overflow-hidden">
+      <div class="overflow-x-auto">
+       <table class="w-full text-sm">
+        <thead>
+         <tr class="bg-soil-50 text-soil-600 text-left text-xs uppercase tracking-wider">
+          <th class="px-4 py-3 font-semibold">Tên danh mục</th>
+          <th class="px-4 py-3 font-semibold">Danh mục cha</th>
+          <th class="px-4 py-3 font-semibold">Mô tả</th>
+          <th class="px-4 py-3 font-semibold text-center">Hành động</th>
+         </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+       </table>
+      </div>
+      <div id="tablePagination" class="px-4 py-3 border-t border-soil-100 flex items-center justify-between text-xs text-soil-600"></div>
+     </div><!-- Mobile Cards -->
+     <div id="mobileCards" class="md:hidden space-y-3"></div>
+     <div id="mobilePagination" class="md:hidden mt-4 flex items-center justify-center gap-2 text-sm"></div>
+    </div><!-- Form View -->
+    <div id="formView" class="hidden fade-in">
+     <div class="bg-white rounded-xl shadow-sm border border-soil-100 p-5 lg:p-6 max-w-2xl">
+      <div class="flex items-center gap-3 mb-5">
+       <button onclick="showList()" class="p-2 rounded-lg hover:bg-soil-100 transition"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+       <h2 id="formTitle" class="text-lg font-bold">Thêm danh mục</h2>
+      </div>
+      <form id="categoryForm" onsubmit="saveCategory(event)" class="space-y-4">
+       <input type="hidden" id="editId" value="">
+       <div><label class="block text-xs font-semibold text-soil-600 mb-1" for="fName">Tên danh mục *</label><input id="fName" required class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400">
+       </div>
+       <div><label class="block text-xs font-semibold text-soil-600 mb-1" for="fParent">Danh mục cha</label><select id="fParent" class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-forest-400/30"><option value="">Không có (danh mục chính)</option></select>
+       </div>
+       <div><label class="block text-xs font-semibold text-soil-600 mb-1" for="fDesc">Mô tả</label><textarea id="fDesc" rows="3" class="w-full px-3 py-2.5 rounded-xl border border-soil-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400/30 focus:border-forest-400 resize-none"></textarea>
+       </div>
+       <div class="flex gap-3 pt-2">
+        <button type="submit" class="px-5 py-2.5 bg-forest-500 hover:bg-forest-600 text-white font-semibold text-sm rounded-xl transition shadow-sm">Lưu danh mục</button> <button type="button" onclick="showList()" class="px-5 py-2.5 bg-soil-100 hover:bg-soil-200 text-soil-800 font-semibold text-sm rounded-xl transition">Hủy</button>
+       </div>
+      </form>
+     </div>
+    </div>
+   </main>
+  </div><!-- FAB mobile --> <button onclick="showForm()" class="sm:hidden fixed bottom-5 right-5 z-30 w-14 h-14 bg-forest-500 hover:bg-forest-600 text-white rounded-2xl shadow-lg flex items-center justify-center transition active:scale-95"> <i data-lucide="plus" class="w-6 h-6"></i> </button> <!-- Delete confirm -->
+  <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center confirm-overlay">
+   <div class="bg-white rounded-2xl shadow-xl p-6 mx-4 max-w-sm w-full fade-in">
+    <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3"><i data-lucide="trash-2" class="w-6 h-6 text-red-500"></i>
+    </div>
+    <h3 class="text-center font-bold mb-1">Xác nhận xóa?</h3>
+    <p id="confirmText" class="text-center text-sm text-soil-600 mb-5">Sản phẩm sẽ bị xóa vĩnh viễn.</p>
+    <div class="flex gap-3">
+     <button onclick="closeConfirm()" class="flex-1 py-2.5 bg-soil-100 hover:bg-soil-200 rounded-xl font-semibold text-sm transition">Hủy</button> <button onclick="confirmDelete()" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm transition">Xóa</button>
+    </div>
+   </div>
+  </div><!-- Toast -->
+  <div id="toast" class="fixed top-4 right-4 z-50 hidden">
+   <div class="bg-forest-700 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 fade-in"><i data-lucide="check-circle" class="w-4 h-4"></i><span id="toastMsg"></span>
+   </div>
+  </div>
+  <script>
+// Sample data - Categories
+let categories = [
+  {id:1,name:'Rau',parent:null,desc:'Các loại rau tươi, rau gia vị'},
+  {id:2,name:'Củ',parent:null,desc:'Rau củ, khoai, cây mầm'},
+  {id:3,name:'Quả',parent:null,desc:'Trái cây tươi nhập khẩu và nội địa'},
+  {id:4,name:'Đặc sản',parent:null,desc:'Sản phẩm nông sản đặc thù địa phương'},
+  {id:5,name:'Rau sạch',parent:1,desc:'Rau được trồng theo tiêu chuẩn sạch'},
+  {id:6,name:'Rau dân dã',parent:1,desc:'Rau thường trồng ngoài trời'},
+  {id:7,name:'Khoai tây',parent:2,desc:'Khoai tây từ Đà Lạt và nhập khẩu'},
+  {id:8,name:'Khoai lang',parent:2,desc:'Khoai lang vàng, tím, trắng'},
+];
+
+let nextId = 9;
+let currentPage = 1;
+const perPage = 8;
+let deleteTarget = null;
+
+function formatParentName(pid) {
+  if(!pid) return '—';
+  const p = categories.find(c => c.id === pid);
+  return p ? p.name : '—';
+}
+
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  return categories.filter(c => {
+    if(q && !c.name.toLowerCase().includes(q) && !c.desc.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function filterCategories() { currentPage = 1; render(); }
+
+function render() {
+  const filtered = getFiltered();
+  const total = filtered.length;
+  const pages = Math.max(1, Math.ceil(total / perPage));
+  if(currentPage > pages) currentPage = pages;
+  const start = (currentPage - 1) * perPage;
+  const slice = filtered.slice(start, start + perPage);
+
+  // Desktop table
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = slice.map(c => `
+    <tr class="table-row border-t border-soil-100">
+      <td class="px-4 py-3"><div class="font-semibold">${c.name}</div></td>
+      <td class="px-4 py-3 text-soil-600">${formatParentName(c.parent)}</td>
+      <td class="px-4 py-3 text-soil-600 max-w-xs truncate" title="${c.desc}">${c.desc}</td>
+      <td class="px-4 py-3 text-center">
+        <div class="flex items-center justify-center gap-1">
+          <button onclick="editCategory(${c.id})" class="p-1.5 rounded-lg hover:bg-forest-50 text-forest-600 transition" title="Sửa"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button onclick="askDelete(${c.id})" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition" title="Xóa"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  // Desktop pagination
+  document.getElementById('tablePagination').innerHTML = `
+    <span>Hiển thị ${total?start+1:0}–${Math.min(start+perPage,total)} / ${total} danh mục</span>
+    <div class="flex gap-1">${paginationBtns(pages)}</div>
+  `;
+
+  // Mobile cards
+  document.getElementById('mobileCards').innerHTML = slice.map(c => `
+    <div class="card-product bg-white rounded-xl shadow-sm border border-soil-100 p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-sm">${c.name}</div>
+          <div class="text-xs text-soil-600 mt-0.5">Cha: ${formatParentName(c.parent)}</div>
+          <div class="text-xs text-soil-600 mt-2">${c.desc}</div>
+          <div class="flex gap-2 mt-3 border-t border-soil-100 pt-3">
+            <button onclick="editCategory(${c.id})" class="flex items-center gap-1 text-xs font-medium text-forest-600 hover:text-forest-700"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Sửa</button>
+            <button onclick="askDelete(${c.id})" class="flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>Xóa</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('mobilePagination').innerHTML = paginationBtns(pages);
+  
+  // Update parent dropdown
+  const parentSelect = document.getElementById('fParent');
+  const parentOptions = '<option value="">Không có (danh mục chính)</option>' + 
+    categories
+      .filter(c => c.parent === null)
+      .map(c => `<option value="${c.id}">${c.name}</option>`)
+      .join('');
+  parentSelect.innerHTML = parentOptions;
+  
+  lucide.createIcons();
+}
+
+function paginationBtns(pages) {
+  let h = '';
+  for(let i=1;i<=pages;i++) {
+    h += `<button onclick="goPage(${i})" class="w-8 h-8 rounded-lg text-xs font-medium transition ${i===currentPage?'bg-forest-500 text-white':'hover:bg-soil-100 text-soil-600'}">${i}</button>`;
+  }
+  return h;
+}
+
+function goPage(p) { currentPage = p; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+function showForm(id) {
+  document.getElementById('listView').classList.add('hidden');
+  document.getElementById('formView').classList.remove('hidden');
+  document.getElementById('formView').classList.add('fade-in');
+  if(!id) {
+    document.getElementById('formTitle').textContent = 'Thêm danh mục';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('editId').value = '';
+  }
+}
+
+function showList() {
+  document.getElementById('formView').classList.add('hidden');
+  document.getElementById('listView').classList.remove('hidden');
+  render();
+}
+
+function editCategory(id) {
+  const c = categories.find(x => x.id === id);
+  if(!c) return;
+  showForm(id);
+  document.getElementById('formTitle').textContent = 'Sửa danh mục';
+  document.getElementById('editId').value = id;
+  document.getElementById('fName').value = c.name;
+  document.getElementById('fParent').value = c.parent || '';
+  document.getElementById('fDesc').value = c.desc;
+}
+
+function saveCategory(e) {
+  e.preventDefault();
+  const id = document.getElementById('editId').value;
+  const data = {
+    name: document.getElementById('fName').value,
+    parent: parseInt(document.getElementById('fParent').value) || null,
+    desc: document.getElementById('fDesc').value,
+  };
+  
+  if(id) {
+    const c = categories.find(x => x.id === +id);
+    if(c) Object.assign(c, data);
+    showToast('Đã cập nhật danh mục');
+  } else {
+    categories.unshift({id: nextId++, ...data});
+    showToast('Đã thêm danh mục mới');
+  }
+  showList();
+}
+
+function askDelete(id) {
+  deleteTarget = id;
+  const c = categories.find(x => x.id === id);
+  document.getElementById('confirmText').textContent = `"${c?.name}" sẽ bị xóa vĩnh viễn.`;
+  document.getElementById('confirmModal').classList.remove('hidden');
+  document.getElementById('confirmModal').classList.add('flex');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.add('hidden');
+  document.getElementById('confirmModal').classList.remove('flex');
+  deleteTarget = null;
+}
+
+function confirmDelete() {
+  if(deleteTarget !== null) {
+    categories = categories.filter(c => c.id !== deleteTarget);
+    showToast('Đã xóa danh mục');
+  }
+  closeConfirm();
+  render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.remove('hidden');
+  lucide.createIcons();
+  setTimeout(() => t.classList.add('hidden'), 2200);
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('mobileSidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  const open = sb.classList.contains('-translate-x-full');
+  sb.classList.toggle('-translate-x-full', !open);
+  sb.classList.toggle('translate-x-0', open);
+  ov.classList.toggle('hidden', !open);
+}
+
+// Element SDK
+const defaultConfig = {
+  page_title: 'Danh mục sản phẩm',
+  add_button_text: 'Thêm danh mục',
+  background_color: '#faf8f5',
+  surface_color: '#ffffff',
+  text_color: '#4a3f33',
+  primary_color: '#22a85a',
+  secondary_color: '#8a7560',
+  font_family: 'Be Vietnam Pro',
+  font_size: 14,
+};
+
+function applyConfig(c) {
+  document.body.style.background = c.background_color || defaultConfig.background_color;
+  document.querySelectorAll('.bg-white, [class*="bg-white"]').forEach(el => {
+    if(!el.closest('#confirmModal') && !el.closest('#toast')) el.style.backgroundColor = c.surface_color || defaultConfig.surface_color;
+  });
+  document.getElementById('pageTitle').textContent = c.page_title || defaultConfig.page_title;
+  const addText = document.getElementById('addBtnText');
+  if(addText) addText.textContent = c.add_button_text || defaultConfig.add_button_text;
+  const ff = (c.font_family || defaultConfig.font_family) + ', sans-serif';
+  document.body.style.fontFamily = ff;
+  document.body.style.color = c.text_color || defaultConfig.text_color;
+}
+
+if(window.elementSdk) {
+  window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => { applyConfig(config); },
+    mapToCapabilities: (config) => ({
+      recolorables: [
+        {get:()=>config.background_color||defaultConfig.background_color, set:v=>{config.background_color=v;window.elementSdk.setConfig({background_color:v})}},
+        {get:()=>config.surface_color||defaultConfig.surface_color, set:v=>{config.surface_color=v;window.elementSdk.setConfig({surface_color:v})}},
+        {get:()=>config.text_color||defaultConfig.text_color, set:v=>{config.text_color=v;window.elementSdk.setConfig({text_color:v})}},
+        {get:()=>config.primary_color||defaultConfig.primary_color, set:v=>{config.primary_color=v;window.elementSdk.setConfig({primary_color:v})}},
+        {get:()=>config.secondary_color||defaultConfig.secondary_color, set:v=>{config.secondary_color=v;window.elementSdk.setConfig({secondary_color:v})}},
+      ],
+      borderables: [],
+      fontEditable: {get:()=>config.font_family||defaultConfig.font_family, set:v=>{config.font_family=v;window.elementSdk.setConfig({font_family:v})}},
+      fontSizeable: {get:()=>config.font_size||defaultConfig.font_size, set:v=>{config.font_size=v;window.elementSdk.setConfig({font_size:v})}},
+    }),
+    mapToEditPanelValues: (config) => new Map([
+      ['page_title', config.page_title || defaultConfig.page_title],
+      ['add_button_text', config.add_button_text || defaultConfig.add_button_text],
+    ]),
+  });
+}
+
+// Init
+render();
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f4b992b83e5e6b2',t:'MTc3NzYwNTA4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
+{% endblock %}
