@@ -1,0 +1,241 @@
+PRAGMA foreign_keys = ON;
+
+-- ======================
+-- 1. CORE + AUDIT
+-- ======================
+CREATE TABLE audit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    action TEXT,
+    object_type TEXT,
+    object_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ======================
+-- 2. RBAC (VAI TRÒ)
+-- ======================
+CREATE TABLE vai_tro (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT UNIQUE
+);
+
+CREATE TABLE quyen (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ma TEXT UNIQUE
+);
+
+CREATE TABLE vai_tro_quyen (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_vai_tro INTEGER,
+    id_quyen INTEGER,
+    UNIQUE(id_vai_tro, id_quyen),
+    FOREIGN KEY (id_vai_tro) REFERENCES vai_tro(id),
+    FOREIGN KEY (id_quyen) REFERENCES quyen(id)
+);
+
+CREATE TABLE nhan_vien (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT,
+    so_dien_thoai TEXT UNIQUE,
+    email TEXT UNIQUE,
+    id_vai_tro INTEGER,
+    trang_thai TEXT CHECK(trang_thai IN ('active','inactive')) DEFAULT 'active',
+    FOREIGN KEY (id_vai_tro) REFERENCES vai_tro(id)
+);
+
+-- ======================
+-- 3. DANH MỤC + SẢN PHẨM
+-- ======================
+CREATE TABLE danh_muc (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT,
+    id_cha INTEGER,
+    FOREIGN KEY (id_cha) REFERENCES danh_muc(id)
+);
+
+CREATE TABLE don_vi_tinh (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT UNIQUE
+);
+
+CREATE TABLE san_pham (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT,
+    id_danh_muc INTEGER,
+    id_don_vi INTEGER,
+    ma_vach TEXT UNIQUE,
+    trang_thai TEXT CHECK(trang_thai IN ('active','inactive')) DEFAULT 'active',
+    FOREIGN KEY (id_danh_muc) REFERENCES danh_muc(id),
+    FOREIGN KEY (id_don_vi) REFERENCES don_vi_tinh(id)
+);
+
+-- ======================
+-- 4. GIÁ (NO OVERLAP LOGIC XỬ LÝ Ở SERVICE)
+-- ======================
+CREATE TABLE gia_san_pham (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_san_pham INTEGER,
+    loai TEXT CHECK(loai IN ('le','si')),
+    gia REAL NOT NULL,
+    ngay_bat_dau DATETIME,
+    ngay_ket_thuc DATETIME,
+    FOREIGN KEY (id_san_pham) REFERENCES san_pham(id)
+);
+
+CREATE INDEX idx_gia_sp ON gia_san_pham(id_san_pham, loai);
+
+-- ======================
+-- 5. KHUYẾN MÃI (NÂNG CẤP)
+-- ======================
+CREATE TABLE khuyen_mai (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT,
+    loai TEXT CHECK(loai IN ('percent','fixed','combo')),
+    gia_tri REAL,
+    dieu_kien_toi_thieu REAL,
+    ap_dung_cho TEXT CHECK(ap_dung_cho IN ('all','vip')),
+    ngay_bat_dau DATETIME,
+    ngay_ket_thuc DATETIME
+);
+
+CREATE TABLE khuyen_mai_san_pham (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_khuyen_mai INTEGER,
+    id_san_pham INTEGER,
+    UNIQUE(id_khuyen_mai, id_san_pham),
+    FOREIGN KEY (id_khuyen_mai) REFERENCES khuyen_mai(id),
+    FOREIGN KEY (id_san_pham) REFERENCES san_pham(id)
+);
+
+-- ======================
+-- 6. NHÀ CUNG CẤP + NHẬP
+-- ======================
+CREATE TABLE nha_cung_cap (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT,
+    so_dien_thoai TEXT,
+    email TEXT,
+    dia_chi TEXT
+);
+
+CREATE TABLE phieu_nhap (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_ncc INTEGER,
+    trang_thai TEXT CHECK(trang_thai IN ('draft','completed','cancel')) DEFAULT 'completed',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_ncc) REFERENCES nha_cung_cap(id)
+);
+
+CREATE TABLE chi_tiet_nhap (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_phieu_nhap INTEGER,
+    id_san_pham INTEGER,
+    so_luong REAL,
+    gia_nhap REAL,
+    han_su_dung DATE,
+    ma_lo TEXT,
+    FOREIGN KEY (id_phieu_nhap) REFERENCES phieu_nhap(id),
+    FOREIGN KEY (id_san_pham) REFERENCES san_pham(id)
+);
+
+-- ======================
+-- 7. KHO + TỒN (FIX LÔ)
+-- ======================
+CREATE TABLE kho (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT
+);
+
+CREATE TABLE ton_kho (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_san_pham INTEGER,
+    id_kho INTEGER,
+    id_chi_tiet_nhap INTEGER,
+    ma_lo TEXT,
+    so_luong REAL,
+    han_su_dung DATE,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(id_san_pham, id_kho, id_chi_tiet_nhap),
+    FOREIGN KEY (id_san_pham) REFERENCES san_pham(id),
+    FOREIGN KEY (id_kho) REFERENCES kho(id),
+    FOREIGN KEY (id_chi_tiet_nhap) REFERENCES chi_tiet_nhap(id)
+);
+
+CREATE TABLE lich_su_kho (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_san_pham INTEGER,
+    id_kho INTEGER,
+    loai TEXT CHECK(loai IN ('nhap','xuat','huy','dieu_chinh','chuyen')),
+    so_luong REAL,
+    ref_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ======================
+-- 8. KHÁCH HÀNG
+-- ======================
+CREATE TABLE khach_hang (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ten TEXT,
+    so_dien_thoai TEXT,
+    loai TEXT CHECK(loai IN ('normal','vip')),
+    diem INTEGER DEFAULT 0
+);
+
+-- ======================
+-- 9. BÁN HÀNG (FIX LOGIC LÔ FIFO)
+-- ======================
+CREATE TABLE hoa_don (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_khach_hang INTEGER,
+    id_nhan_vien INTEGER,
+    trang_thai TEXT CHECK(trang_thai IN ('draft','completed','cancel')),
+    tong_tien REAL,
+    giam_gia REAL DEFAULT 0,
+    tong_thanh_toan REAL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id),
+    FOREIGN KEY (id_nhan_vien) REFERENCES nhan_vien(id)
+);
+
+CREATE TABLE chi_tiet_hoa_don (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_hoa_don INTEGER,
+    id_san_pham INTEGER,
+    so_luong REAL,
+    gia REAL,
+    UNIQUE(id_hoa_don, id_san_pham),
+    FOREIGN KEY (id_hoa_don) REFERENCES hoa_don(id),
+    FOREIGN KEY (id_san_pham) REFERENCES san_pham(id)
+);
+
+-- QUAN TRỌNG: LINK XUẤT KHO THEO LÔ
+CREATE TABLE xuat_kho_chi_tiet (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_hoa_don INTEGER,
+    id_ton_kho INTEGER,
+    so_luong REAL,
+    FOREIGN KEY (id_hoa_don) REFERENCES hoa_don(id),
+    FOREIGN KEY (id_ton_kho) REFERENCES ton_kho(id)
+);
+
+-- ======================
+-- 10. THANH TOÁN (FIX)
+-- ======================
+CREATE TABLE thanh_toan (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_hoa_don INTEGER,
+    phuong_thuc TEXT CHECK(phuong_thuc IN ('cash','bank')),
+    so_tien REAL,
+    trang_thai TEXT CHECK(trang_thai IN ('pending','completed','failed')) DEFAULT 'completed',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_hoa_don) REFERENCES hoa_don(id)
+);
+
+-- ======================
+-- INDEX QUAN TRỌNG
+-- ======================
+CREATE INDEX idx_ton_kho_sp ON ton_kho(id_san_pham);
+CREATE INDEX idx_ton_kho_kho ON ton_kho(id_kho);
+CREATE INDEX idx_hd_date ON hoa_don(created_at);
