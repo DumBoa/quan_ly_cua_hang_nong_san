@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.khuyenmai',
     'apps.nhanvien',
     'apps.baocao',
+    'apps.accounts',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'utils.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -129,3 +131,10 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# setting bat cbuoc login thi moi vao duoc
+# LOGIN_URL = '/accounts/login/'
+# LOGIN_REDIRECT_URL = '/dashboard/'
+# LOGOUT_REDIRECT_URL = '/accounts/login/'
